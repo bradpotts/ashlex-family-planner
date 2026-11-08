@@ -17,6 +17,7 @@ apt-get update -y
 apt-get install -y ufw curl rsync ca-certificates
 ufw allow OpenSSH
 ufw allow 80/tcp
+ufw reject 443/tcp
 ufw --force enable
 
 echo "==> Node 24 + nginx"
@@ -45,11 +46,6 @@ cp deploy/family-weekend.service /etc/systemd/system/family-weekend.service
 systemctl daemon-reload
 systemctl enable family-weekend
 systemctl restart family-weekend
-
-echo "==> Let the app user restart only its own service (used by deploy.sh)"
-echo "$APP_USER ALL=(root) NOPASSWD: /usr/bin/systemctl restart family-weekend" > /etc/sudoers.d/family-weekend
-chmod 440 /etc/sudoers.d/family-weekend
-visudo -cf /etc/sudoers.d/family-weekend
 
 echo "==> nginx"
 cp deploy/nginx.conf /etc/nginx/sites-available/family-weekend

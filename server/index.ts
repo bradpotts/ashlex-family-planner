@@ -3,6 +3,7 @@ import express, {
   type Request,
   type Response
 } from 'express'
+import dns from 'node:dns'
 import { existsSync } from 'node:fs'
 import net from 'node:net'
 import path from 'node:path'
@@ -20,6 +21,8 @@ import { isValidTimeZone } from './lib/weekend.ts'
 // Node's 250ms default per-address connect attempt is too short for some
 // multi-address hosts (overpass-api.de failed with ETIMEDOUT while curl worked).
 net.setDefaultAutoSelectFamilyAttemptTimeout(2500)
+// The server's IPv6 route to Overpass stalled (~31s per query) while IPv4 is fast.
+dns.setDefaultResultOrder('ipv4first')
 
 const HOST = process.env.HOST ?? '127.0.0.1'
 const PORT = Number(process.env.PORT ?? 3000)

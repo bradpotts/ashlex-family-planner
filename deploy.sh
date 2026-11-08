@@ -1,11 +1,9 @@
-#!/usr/bin/env bash
-# Run as the "app" user from /opt/family-weekend after pulling new code.
-# Needs a sudoers rule allowing only: systemctl restart family-weekend
-set -euo pipefail
-cd "$(dirname "$0")"
-npm ci
-npm run build
-npm prune --omit=dev
-sudo systemctl restart family-weekend
+#!/bin/bash
+set -e
+cd /opt/family-weekend
+sudo -u app git pull
+sudo -u app npm ci
+sudo -u app npm run build
+systemctl restart family-weekend
 sleep 2
-curl -fsS http://127.0.0.1:3000/api/health && echo " ← health OK"
+curl -s http://127.0.0.1/api/health; echo

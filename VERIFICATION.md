@@ -30,20 +30,31 @@ Re-run the deployment checks on the Linode after install.
 - The empty-state panel stayed visible after selecting a city (CSS `display`
   overrode `hidden`). Fix: `.empty[hidden]`.
 
-## Live server checks (URL supplied separately)
+## Live server checks (manual, Bradley Potts)
 
-Run on 8 Nov 2026 at about 07:18 UTC. "Automated" means scripted `curl`/TCP
-checks run from an external machine. "Manual" means checked by the developer on
-the server or in a browser.
+The live URL is supplied separately with the assessment submission. Checked by
+the developer on the server and in a browser on 8 Nov 2026.
 
-| #   | Check                                    | How                                                                     | Result                                                                                                                                                                                                                 |
-| --- | ---------------------------------------- | ----------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| L1  | Deployed site loads in a browser         | Manual (browser) and automated                                          | ✅ `GET /` → HTTP 200 in 0.4s; search, weather, activities, and restaurant render                                                                                                                                      |
-| L2  | Portland OR vs Portland ME weekends      | Automated (`/api/weekend`)                                              | ✅ Same instant, different weekends: **Portland, OR** local Sat 7 Nov 23:18 → weekend **Sat 7 – Sun 8 Nov**; **Portland, ME** local Sun 8 Nov 02:18 → weekend **Sat 14 – Sun 15 Nov** (Sunday rule: following weekend) |
-| L3  | `simulateFail` failure state             | Automated and manual (browser)                                          | ✅ `/api/restaurant?simulateFail=overpass` → HTTP 503 JSON error; in the browser, `?simulateFail=overpass` shows the error alerts with "Try again" while the weather still loads                                       |
-| L4  | Bad input rejected                       | Automated                                                               | ✅ `tz=Not/AZone` → HTTP 400 JSON error                                                                                                                                                                                |
-| L5  | Only 22 and 80 exposed (`ss`, firewall)  | Manual (`ss -tlnp`, `ufw status`) and automated (external TCP)          | ✅ `ss -tlnp`: sshd on :22, nginx on :80, node on **127.0.0.1:3000** only. External TCP probe: 22 open, 80 open, 3000 closed, 443 closed                                                                               |
-| L6  | App runs as `app`, not root              | Manual (`ps -o user= -C node`, `systemctl show -p User family-weekend`) | ✅ Node process owned by `app`; systemd unit `User=app`                                                                                                                                                                |
-| L7  | Still works after SSH logout             | Manual                                                                  | ✅ Logged out of SSH, then reloaded the site: still serving (systemd service, `Restart=always`)                                                                                                                        |
-| L8  | Headers hardened                         | Automated (`curl -I`)                                                   | ✅ CSP, `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY` present; no `X-Powered-By`; `Server: nginx` without a version                                                                                       |
-| L9  | Large city (Toronto) after the speed fix | Automated (local production build)                                      | ✅ Activities and restaurant both returned after one shared Overpass call (~30s first search, 0s repeat): Riverdale Farm, Ripley's Aquarium of Canada, High Park Zoo; Grazie Ristorante 1.7 km                         |
+| #   | Check                      | How                                         | Result                                                                                                                                                        |
+| --- | -------------------------- | ------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| M1  | Health through nginx       | Manual (`curl http://127.0.0.1/api/health`) | ✅ `{"ok":true,…}` returned via nginx → Node                                                                                                                  |
+| M2  | Listening services         | Manual (`ss -tlnp`)                         | ✅ nginx on `0.0.0.0:80`; Node on `127.0.0.1:3000` only; SSH on 22                                                                                            |
+| M3  | Firewall                   | Manual (`ufw status`)                       | ✅ OpenSSH and Nginx HTTP allowed; 443 **rejected**                                                                                                           |
+| M4  | Site loads at the live URL | Manual (browser)                            | ✅ Search, weather, activities, and restaurant render                                                                                                         |
+| M5  | API latency on the server  | Manual (`curl -w %{time_total}`)            | Geocode **0.49s**. Overpass **31.8s before the IPv4 fix**: the IPv6 route stalled, so the server now uses `dns.setDefaultResultOrder('ipv4first')`            |
+| M6  | Chrome HTTPS-first timeout | Manual (Chrome)                             | ❌ → ✅ Chrome tried `https://` first and hung while 443 was dropped. Fixed by **rejecting** 443 (`ufw reject 443/tcp`), so Chrome falls back to HTTP at once |
+
+## External checks (automated, from outside the server)
+
+Run on 8 Nov 2026 at about 07:18 UTC with scripted `curl`/TCP checks against the
+live URL.
+
+| #   | Check                                | How                                | Result                                                                                                                                                                                                                 |
+| --- | ------------------------------------ | ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| E1  | Site responds                        | Automated (`curl`)                 | ✅ `GET /` → HTTP 200 in 0.4s                                                                                                                                                                                          |
+| E2  | Portland OR vs Portland ME weekends  | Automated (`/api/weekend`)         | ✅ Same instant, different weekends: **Portland, OR** local Sat 7 Nov 23:18 → weekend **Sat 7 – Sun 8 Nov**; **Portland, ME** local Sun 8 Nov 02:18 → weekend **Sat 14 – Sun 15 Nov** (Sunday rule: following weekend) |
+| E3  | `simulateFail` failure state         | Automated                          | ✅ `/api/restaurant?simulateFail=overpass` → HTTP 503 JSON error                                                                                                                                                       |
+| E4  | Bad input rejected                   | Automated                          | ✅ `tz=Not/AZone` → HTTP 400 JSON error                                                                                                                                                                                |
+| E5  | Exposed ports                        | Automated (external TCP)           | ✅ 22 open, 80 open, 3000 closed, 443 closed                                                                                                                                                                           |
+| E6  | Headers hardened                     | Automated (`curl -I`)              | ✅ CSP, `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY` present; no `X-Powered-By`; `Server: nginx` without a version                                                                                       |
+| E7  | Large city (Toronto) after speed fix | Automated (local production build) | ✅ Activities and restaurant both returned after one shared Overpass call (~30s first search, 0s repeat): Riverdale Farm, Ripley's Aquarium of Canada, High Park Zoo; Grazie Ristorante 1.7 km                         |

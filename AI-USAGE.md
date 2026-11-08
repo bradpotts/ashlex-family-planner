@@ -21,34 +21,38 @@
 
 ## Corrections and decisions made by the developer
 
-- **Keyless sources over Google Places**: chose Open-Meteo and OpenStreetMap
-  rather than Google Places. There's no cost or billing risk (the brief forbids
-  unagreed charges), no API key to protect, and every place links to a public
-  OpenStreetMap page that anyone can check. Accepted trade-off: OSM coverage and
-  freshness vary, and Overpass is slow.
-- **Stack**: kept the developer's own Spectre design system for a consistent
-  look, rather than an AI-suggested generic UI kit.
-- Set the honesty rules up front in `AGENTS.md`, `CLAUDE.md`, and `SPEC.md`: no
-  invented facts, a source and timestamp on everything, explicit "couldn't
-  verify" states.
-- Specified a `?simulateFail=` hook so failure states can be demonstrated on
-  demand.
-- **Overpass 406 diagnosed as a missing User-Agent**: Overpass rejected requests
-  with `406 Not Acceptable`. I traced this to the missing `User-Agent` header
-  and required every server-side call to send
-  `FamilyWeekendPlanner/1.0 (assessment demo)`. That's a generic app identity,
-  with no personal email.
-- **Italian only, not pizza**: the restaurant search matches `cuisine~italian`
-  only. I deliberately excluded pizza-only places, because the brief asks for an
-  Italian restaurant and a takeaway pizza shop isn't the same recommendation.
-  Places tagged `italian;pizza` still qualify.
-- **No CI deploy**: CI runs the full check on push, but deployment stays a
-  manual `git pull`, `npm ci`, build, and restart on the server. Setting up
-  deploy keys and secrets in CI wasn't worth the time in a two-hour build, and
-  keeping server access out of GitHub is safer.
-- **Skipped the date picker**: the brief defines exactly which weekend to show
-  (the next Saturday on or after the city's local date), so I didn't add a
-  picker. It would have added scope and new edge cases for no requirement.
+- **Keyless Open-Meteo + OpenStreetMap over Google Places**: no cost or billing
+  risk (the brief forbids unagreed charges), no API key to protect, and every
+  place links to a public OpenStreetMap page anyone can check. Accepted
+  trade-off: OSM coverage varies, and public Overpass is slow.
+- **Diagnosed the Overpass 406 as a missing User-Agent**: Overpass rejected
+  requests with `406 Not Acceptable`. I traced it to the missing `User-Agent`
+  header and required every server-side call to send
+  `FamilyWeekendPlanner/1.0 (assessment demo)`, a generic app identity with no
+  personal email.
+- **Italian only, not pizza**: the restaurant search matches `cuisine~italian`.
+  Pizza-only places are excluded because the brief asks for an Italian
+  restaurant; places tagged `italian;pizza` still qualify.
+- **Skipped a GitHub Actions deploy**: a time and security trade-off. CI runs
+  the checks, but deployment is `deploy.sh` run as root on the server, so no
+  deploy keys or server credentials are stored in GitHub.
+- **No date picker**: the brief fixes which weekend to plan (the next Saturday
+  on or after the city's local date), so a picker would add scope and edge cases
+  for no requirement.
+- **Diagnosed slow Overpass on the server as IPv6 and forced IPv4**: on the
+  Linode, Overpass took 31.8s while geocoding took 0.49s. I traced the delay to
+  the server's IPv6 route stalling and set
+  `dns.setDefaultResultOrder('ipv4first')`.
+- **Rejected port 443 instead of dropping it**: Chrome's HTTPS-first mode tried
+  `https://` and hung until timeout because ufw silently dropped 443. Rejecting
+  it makes the refusal immediate, so Chrome falls back to HTTP at once. TLS
+  isn't possible without a hostname.
+- **Stack**: kept my own Spectre design system for a consistent look, rather
+  than an AI-suggested generic UI kit.
+- **Honesty rules and failure demo up front**: set "no invented facts, a source
+  and timestamp on everything, explicit couldn't-verify states" in `AGENTS.md`,
+  `CLAUDE.md`, and `SPEC.md`, and specified the `?simulateFail=` hook so failure
+  states can be shown on demand.
 
 ## Issues the AI hit, and how they were resolved
 
