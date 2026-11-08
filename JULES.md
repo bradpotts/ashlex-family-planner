@@ -14,9 +14,9 @@ Jules must not add new dependencies or data sources, change `SPEC.md`, change
 
 ## Commit Authority
 
-Jules commits and pushes a clean, single-category maintenance change directly
-to `main` after `npm run check` passes. No force pushes, no AI co-author
-trailers, and no absorbing unrelated working-tree changes.
+Jules commits and pushes a clean, single-category maintenance change directly to
+`main` after `npm run check` passes. No force pushes, no AI co-author trailers,
+and no absorbing unrelated working-tree changes.
 
 ## Handoff
 

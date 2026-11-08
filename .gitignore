@@ -1,6 +1,18 @@
+# Dependencies
 node_modules/
+
+# Build artifacts
 dist/
+
+# Environment (secrets never committed; see .env.example)
 .env
 .env.local
 *.local
+
+# Logs and caches
+*.log
+.eslintcache
+
+# OS files
 .DS_Store
+Thumbs.db

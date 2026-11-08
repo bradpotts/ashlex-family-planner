@@ -13,12 +13,14 @@ any city in the world. It has no login, payments, or extra features.
 ## 2. Functional Requirements
 
 ### 2.1 City search
+
 - Search for and select any city worldwide.
 - Show **region and country** for every result, so that cities sharing a name
   (for example Portland US-OR / US-ME, or London GB / London CA-ON) can be told
   apart.
 
 ### 2.2 Target weekend (city-local time)
+
 - Use the **selected city's** local date and time, not the server's or the
   browser's.
 - The target weekend starts on the next Saturday on or after the city's local
@@ -29,19 +31,22 @@ any city in the world. It has no login, payments, or extra features.
 - Always display the actual dates.
 
 ### 2.3 Weekend weather
+
 - Saturday and Sunday forecast: date, conditions, temperatures **with units**,
   and rain information (probability and/or amount) where available.
 - Must come from a real weather source.
 
 ### 2.4 Two activities for children aged 4–8
+
 - Two specific, real, local activities.
 - A short explanation of why each one suits ages 4–8.
 - Take the weather into account where practical (rain → indoor).
 - Each activity has a source link.
 
 ### 2.5 One Italian restaurant
-- One real, local Italian restaurant with its location, a short explanation,
-  and a source link.
+
+- One real, local Italian restaurant with its location, a short explanation, and
+  a source link.
 - If no suitable option can be verified, **say so clearly**. Never invent one.
 
 ## 3. Information Quality (20% of the score)
@@ -65,17 +70,17 @@ any city in the world. It has no login, payments, or extra features.
 
 These are defaults, not fixed decisions. Bradley Potts may change them.
 
-| Concern | Default |
-| --- | --- |
-| Frontend | TypeScript · Vite SPA (Spectre if available, otherwise hand-written CSS custom-property tokens) |
-| Backend | Small Node + TypeScript API (`server/`) that proxies and normalizes every external call, so no keys or third-party logic sit in the browser |
-| Geocoding | Open-Meteo Geocoding API: free, no key; returns `admin1`, `country`, `timezone` |
-| Weather | Open-Meteo Forecast API (`daily`, `timezone=<city tz>`): free, no key |
+| Concern                 | Default                                                                                                                                                              |
+| ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Frontend                | TypeScript · Vite SPA (Spectre if available, otherwise hand-written CSS custom-property tokens)                                                                      |
+| Backend                 | Small Node + TypeScript API (`server/`) that proxies and normalizes every external call, so no keys or third-party logic sit in the browser                          |
+| Geocoding               | Open-Meteo Geocoding API: free, no key; returns `admin1`, `country`, `timezone`                                                                                      |
+| Weather                 | Open-Meteo Forecast API (`daily`, `timezone=<city tz>`): free, no key                                                                                                |
 | Activities / restaurant | OpenStreetMap via the Overpass API: free, no key. Source link = `https://www.openstreetmap.org/<type>/<id>`. Optionally enrich with the `website` / `wikipedia` tags |
-| Weekend date math | Computed server-side from the city's IANA timezone, with unit tests |
-| Process manager | `systemd` unit running as a dedicated non-root user |
-| Web front | nginx on port 80 → Node bound to `127.0.0.1` only |
-| Firewall | `ufw`: allow OpenSSH and 80 only |
+| Weekend date math       | Computed server-side from the city's IANA timezone, with unit tests                                                                                                  |
+| Process manager         | `systemd` unit running as a dedicated non-root user                                                                                                                  |
+| Web front               | nginx on port 80 → Node bound to `127.0.0.1` only                                                                                                                    |
+| Firewall                | `ufw`: allow OpenSSH and 80 only                                                                                                                                     |
 
 Paid APIs (Google Places, etc.) are **out of scope** unless Ashlex agrees in
 advance.
@@ -112,13 +117,13 @@ advance.
 
 ## 8. Scoring
 
-| Area | Weight |
-| --- | --- |
-| Working application and correct results | 25% |
-| Visual design and user experience | 25% |
-| Reliable sources and handling uncertainty | 20% |
-| Server setup and security basics | 15% |
-| Code quality, verification, and handoff | 15% |
+| Area                                      | Weight |
+| ----------------------------------------- | ------ |
+| Working application and correct results   | 25%    |
+| Visual design and user experience         | 25%    |
+| Reliable sources and handling uncertainty | 20%    |
+| Server setup and security basics          | 15%    |
+| Code quality, verification, and handoff   | 15%    |
 
 ## 9. Time Rule
 

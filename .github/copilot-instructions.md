@@ -7,8 +7,8 @@ without following links, so the hard limits are restated here on purpose.
 ## Hard Limits
 
 - Never invent forecasts, places, opening hours, prices, or availability. If
-  data is missing or a source fails, return `status: "empty" | "error"` and
-  show it in the UI. Label any sample data **Sample data**.
+  data is missing or a source fails, return `status: "empty" | "error"` and show
+  it in the UI. Label any sample data **Sample data**.
 - Every activity and restaurant includes a source link and a `retrievedAt`
   timestamp.
 - Weekend dates use the selected city's IANA timezone. Saturday → today and
@@ -17,8 +17,8 @@ without following links, so the hard limits are restated here on purpose.
 - The browser calls only `/api/*`. No API keys, secrets, server IPs, or
   credentials in `src/` or any committed file.
 - Free public sources only (Open-Meteo, OpenStreetMap/Overpass). No paid APIs.
-- Use design tokens (CSS custom properties) rather than scattered raw values.
-  No remote images that might break; use inline SVG or local assets.
+- Use design tokens (CSS custom properties) rather than scattered raw values. No
+  remote images that might break; use inline SVG or local assets.
 - No AI co-author trailers. No pull requests unless Bradley Potts asks.
 
 ## Conventions
@@ -31,5 +31,5 @@ without following links, so the hard limits are restated here on purpose.
 ## Validation
 
 ```bash
-npm run check   # typecheck + test + build
+npm run check   # format:check + lint + typecheck + test + build + check:ecosystem
 ```

@@ -6,9 +6,9 @@ boundaries, and authority model.
 ## Role
 
 Codex owns documentation consistency, handoff readiness, repo hygiene, and git
-execution for Claude-authored work. Claude Code remains the implementation
-lead. Codex validates, reviews, commits, and pushes, without taking over
-product or architecture decisions.
+execution for Claude-authored work. Claude Code remains the implementation lead.
+Codex validates, reviews, commits, and pushes, without taking over product or
+architecture decisions.
 
 ## Entry Point
 

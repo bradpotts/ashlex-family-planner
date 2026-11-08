@@ -19,11 +19,11 @@ validation, server boundaries, and authority model. Product scope is in
 
 ## Time-Boxed TODO Workflow
 
-1. Work in TODO priority order: P0 (works end to end) → P1 (deployed) →
-   P2 (polish) → P3 (handoff docs).
+1. Work in TODO priority order: P0 (works end to end) → P1 (deployed) → P2
+   (polish) → P3 (handoff docs).
 2. Tick an item only after its behavior is verified and `npm run check` passes.
-3. If something is cut for time, leave it unticked and add it to README
-   "Known limitations / unfinished".
+3. If something is cut for time, leave it unticked and add it to README "Known
+   limitations / unfinished".
 4. After meaningful steps, append a short redacted entry to `AI-USAGE.md`
    (prompt summary, what was produced, how it was verified, any correction).
 
@@ -61,14 +61,14 @@ unavailable.
   plus a timezone-crossing case, in unit tests.
 - Weather: request Open-Meteo `daily` fields (`weather_code`,
   `temperature_2m_max/min`, `precipitation_probability_max`,
-  `precipitation_sum`) with `timezone=<city tz>` and `start_date`/`end_date`
-  set to the weekend. Show units from the response. If the weekend is past the
+  `precipitation_sum`) with `timezone=<city tz>` and `start_date`/`end_date` set
+  to the weekend. Show units from the response. If the weekend is past the
   forecast horizon, say so.
 - Activities: query Overpass near the city for kid-suitable OSM tags
   (`leisure=playground|park`, `tourism=zoo|aquarium|museum|theme_park`,
-  `amenity=library`, etc.). Prefer indoor options when rain probability is
-  high. Pick two named places and give a one-line "why it suits ages 4–8"
-  derived from the place type, not invented details.
+  `amenity=library`, etc.). Prefer indoor options when rain probability is high.
+  Pick two named places and give a one-line "why it suits ages 4–8" derived from
+  the place type, not invented details.
 - Restaurant: Overpass `amenity=restaurant` + `cuisine~italian|pizza`, named,
   nearest to the city centre. If none is found, return `status: "empty"` and
   show "We couldn't verify an Italian restaurant here".

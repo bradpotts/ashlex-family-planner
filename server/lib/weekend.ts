@@ -1,10 +1,10 @@
-const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 const DAY_MS = 86_400_000
 
 export function isValidTimeZone(tz: string): boolean {
   if (!tz || tz.length > 64) return false
   try {
-    new Intl.DateTimeFormat("en-US", { timeZone: tz })
+    new Intl.DateTimeFormat('en-US', { timeZone: tz })
     return true
   } catch {
     return false
@@ -21,21 +21,21 @@ export interface LocalNow {
 }
 
 export function localNow(tz: string, now: Date = new Date()): LocalNow {
-  const parts = new Intl.DateTimeFormat("en-US", {
+  const parts = new Intl.DateTimeFormat('en-US', {
     timeZone: tz,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    weekday: "short",
-    hour: "2-digit",
-    minute: "2-digit",
-    hourCycle: "h23",
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    weekday: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23'
   }).formatToParts(now)
-  const get = (type: string) => parts.find((p) => p.type === type)?.value ?? ""
+  const get = (type: string) => parts.find((p) => p.type === type)?.value ?? ''
   return {
-    date: `${get("year")}-${get("month")}-${get("day")}`,
-    time: `${get("hour")}:${get("minute")}`,
-    weekday: WEEKDAYS.indexOf(get("weekday")),
+    date: `${get('year')}-${get('month')}-${get('day')}`,
+    time: `${get('hour')}:${get('minute')}`,
+    weekday: WEEKDAYS.indexOf(get('weekday'))
   }
 }
 
@@ -45,8 +45,10 @@ export function daysUntilSaturday(weekday: number): number {
 }
 
 function addDays(isoDate: string, days: number): string {
-  const [y, m, d] = isoDate.split("-").map(Number)
-  return new Date(Date.UTC(y, m - 1, d) + days * DAY_MS).toISOString().slice(0, 10)
+  const [y, m, d] = isoDate.split('-').map(Number)
+  return new Date(Date.UTC(y, m - 1, d) + days * DAY_MS)
+    .toISOString()
+    .slice(0, 10)
 }
 
 export interface TargetWeekend {
@@ -55,7 +57,10 @@ export interface TargetWeekend {
   sunday: string
 }
 
-export function targetWeekend(tz: string, now: Date = new Date()): TargetWeekend {
+export function targetWeekend(
+  tz: string,
+  now: Date = new Date()
+): TargetWeekend {
   const local = localNow(tz, now)
   const saturday = addDays(local.date, daysUntilSaturday(local.weekday))
   return { local, saturday, sunday: addDays(saturday, 1) }

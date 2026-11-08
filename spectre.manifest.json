@@ -6,7 +6,7 @@
     "name": "family-weekend",
     "version": "0.0.1",
     "manifestVersion": "0.1",
-    "summary": "Application manifest for this Spectre-scaffolded project.",
+    "summary": "Family Weekend Planner: Spectre shell SPA with a Node/Express API, built for the Ashlex assessment.",
     "packageManager": "npm"
   },
   "layers": {
@@ -20,9 +20,7 @@
       "title": "Application",
       "description": "This project.",
       "order": 20,
-      "dependsOn": [
-        "foundation"
-      ]
+      "dependsOn": ["foundation"]
     }
   },
   "packages": {
@@ -31,63 +29,49 @@
       "layer": "foundation",
       "stability": "stable",
       "description": "SPA bootstrap orchestration — bootstrapApp, lifecycle hooks, plugin system.",
-      "exports": [
-        "."
-      ]
+      "exports": ["."]
     },
     "@phcdevworks/spectre-shell-router": {
       "role": "router",
       "layer": "foundation",
       "stability": "stable",
       "description": "Client-side routing — path matching, lazy loaders, guards.",
-      "exports": [
-        "."
-      ]
+      "exports": ["."]
     },
     "@phcdevworks/spectre-shell-signals": {
       "role": "reactive-primitives",
       "layer": "foundation",
       "stability": "stable",
       "description": "Reactive primitives — signal, computed, effect, batch.",
-      "exports": [
-        "."
-      ]
+      "exports": ["."]
     },
     "@phcdevworks/spectre-tokens": {
       "role": "design-tokens",
       "layer": "foundation",
       "stability": "stable",
       "description": "Design tokens as CSS variables and JS objects.",
-      "exports": [
-        "."
-      ]
+      "exports": ["."]
     },
     "@phcdevworks/spectre-ui": {
       "role": "styling",
       "layer": "foundation",
       "stability": "stable",
       "description": "CSS bundles and type-safe recipe functions built on tokens.",
-      "exports": [
-        "."
-      ]
+      "exports": ["."]
     },
     "@phcdevworks/spectre-components": {
       "role": "web-components",
       "layer": "foundation",
       "stability": "stable",
       "description": "Spectre custom elements (for example sp-button).",
-      "exports": [
-        "."
-      ]
+      "exports": ["."]
     },
     "family-weekend": {
       "role": "application",
       "layer": "app",
       "stability": "experimental",
-      "description": "Spectre shell app scaffolded by @phcdevworks/spectre-init.",
-      "exports": [
-        "."
-      ],
+      "description": "Family Weekend Planner SPA (Spectre shell, components, and tokens).",
+      "exports": ["."],
       "dependencies": [
         "@phcdevworks/spectre-shell",
         "@phcdevworks/spectre-shell-router",
@@ -96,25 +80,18 @@
         "@phcdevworks/spectre-ui",
         "@phcdevworks/spectre-components"
       ],
-      "allowedTargets": [
-        "layer:foundation"
-      ]
+      "allowedTargets": ["layer:foundation"]
     }
   },
   "rules": {
     "dependencyDirection": [
       {
         "fromLayer": "foundation",
-        "allowedLayers": [
-          "foundation"
-        ]
+        "allowedLayers": ["foundation"]
       },
       {
         "fromLayer": "app",
-        "allowedLayers": [
-          "app",
-          "foundation"
-        ]
+        "allowedLayers": ["app", "foundation"]
       }
     ],
     "forbiddenImports": [],

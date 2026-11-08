@@ -17,7 +17,7 @@ export interface Source {
 
 export interface WeatherDay {
   date: string
-  weekday: "Saturday" | "Sunday"
+  weekday: 'Saturday' | 'Sunday'
   code: number | null
   label: string
   icon: IconKey
@@ -27,7 +27,8 @@ export interface WeatherDay {
   precipProbMax: number | null
 }
 
-export type IconKey = "sun" | "partly" | "cloud" | "fog" | "rain" | "snow" | "storm"
+export type IconKey =
+  'sun' | 'partly' | 'cloud' | 'fog' | 'rain' | 'snow' | 'storm'
 
 export interface WeekendResponse {
   timezone: string
@@ -96,17 +97,29 @@ export class ApiError extends Error {
 }
 
 /** `?simulateFail=weather|geocode|overpass` on the page URL is forwarded so failure states can be demoed. */
-const simulateFail = new URLSearchParams(location.search).get("simulateFail")
+const simulateFail = new URLSearchParams(location.search).get('simulateFail')
 
-async function get<T>(path: string, params: Record<string, string | number>, signal?: AbortSignal): Promise<T> {
-  const qs = new URLSearchParams(Object.entries(params).map(([k, v]) => [k, String(v)]))
-  if (simulateFail) qs.set("simulateFail", simulateFail)
+async function get<T>(
+  path: string,
+  params: Record<string, string | number>,
+  signal?: AbortSignal
+): Promise<T> {
+  const qs = new URLSearchParams(
+    Object.entries(params).map(([k, v]) => [k, String(v)])
+  )
+  if (simulateFail) qs.set('simulateFail', simulateFail)
   let res: Response
   try {
-    res = await fetch(`${path}?${qs}`, { signal, headers: { Accept: "application/json" } })
+    res = await fetch(`${path}?${qs}`, {
+      signal,
+      headers: { Accept: 'application/json' }
+    })
   } catch (err) {
-    if (err instanceof DOMException && err.name === "AbortError") throw err
-    throw new ApiError("We couldn't reach the planner service. Check your connection and try again.", null)
+    if (err instanceof DOMException && err.name === 'AbortError') throw err
+    throw new ApiError(
+      "We couldn't reach the planner service. Check your connection and try again.",
+      null
+    )
   }
   let body: unknown = null
   try {
@@ -115,19 +128,39 @@ async function get<T>(path: string, params: Record<string, string | number>, sig
     // fall through to the generic error below
   }
   if (!res.ok) {
-    const e = (body as { error?: { message?: string; source?: string } } | null)?.error
-    throw new ApiError(e?.message ?? `Request failed (HTTP ${res.status}).`, e?.source ?? null)
+    const e = (body as { error?: { message?: string; source?: string } } | null)
+      ?.error
+    throw new ApiError(
+      e?.message ?? `Request failed (HTTP ${res.status}).`,
+      e?.source ?? null
+    )
   }
   return body as T
 }
 
 export const api = {
   geocode: (q: string, signal?: AbortSignal) =>
-    get<{ results: City[]; retrievedAt: string }>("/api/geocode", { q }, signal),
+    get<{ results: City[]; retrievedAt: string }>(
+      '/api/geocode',
+      { q },
+      signal
+    ),
   weekend: (c: City, signal?: AbortSignal) =>
-    get<WeekendResponse>("/api/weekend", { lat: c.lat, lon: c.lon, tz: c.timezone }, signal),
+    get<WeekendResponse>(
+      '/api/weekend',
+      { lat: c.lat, lon: c.lon, tz: c.timezone },
+      signal
+    ),
   activities: (c: City, signal?: AbortSignal) =>
-    get<ActivitiesResponse>("/api/activities", { lat: c.lat, lon: c.lon, tz: c.timezone }, signal),
+    get<ActivitiesResponse>(
+      '/api/activities',
+      { lat: c.lat, lon: c.lon, tz: c.timezone },
+      signal
+    ),
   restaurant: (c: City, signal?: AbortSignal) =>
-    get<RestaurantResponse>("/api/restaurant", { lat: c.lat, lon: c.lon }, signal),
+    get<RestaurantResponse>(
+      '/api/restaurant',
+      { lat: c.lat, lon: c.lon },
+      signal
+    )
 }

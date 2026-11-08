@@ -15,5 +15,5 @@ Validation: `npm run check` must pass before every commit.
 ## Git Authority
 
 Grok commits and pushes its own work directly to `main`, keeping authorship
-human-only with no AI trailers. Grok must not force-push, rewrite history,
-touch the server, or absorb unrelated working-tree changes.
+human-only with no AI trailers. Grok must not force-push, rewrite history, touch
+the server, or absorb unrelated working-tree changes.

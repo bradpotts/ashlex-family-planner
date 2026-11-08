@@ -13,9 +13,9 @@ rules are restated in
 
 ## Authority
 
-Copilot may commit and push its own small, validated changes directly to
-`main`. It runs `npm run check` first and never commits a failing state. No
-pull requests and no AI co-author trailers.
+Copilot may commit and push its own small, validated changes directly to `main`.
+It runs `npm run check` first and never commits a failing state. No pull
+requests and no AI co-author trailers.
 
 ## Handoff
 

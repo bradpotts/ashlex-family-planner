@@ -14,10 +14,6 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-#nav-status:empty {
-  display: none;
-}
-
 .visually-hidden {
   position: absolute !important;
   width: 1px;
@@ -111,8 +107,16 @@ a {
 
 .hero {
   background:
-    radial-gradient(ellipse at top right, var(--sp-color-palette-amber-100), transparent 60%),
-    linear-gradient(160deg, var(--sp-color-brand-50), var(--sp-color-palette-cyan-50));
+    radial-gradient(
+      ellipse at top right,
+      var(--sp-color-palette-amber-100),
+      transparent 60%
+    ),
+    linear-gradient(
+      160deg,
+      var(--sp-color-brand-50),
+      var(--sp-color-palette-cyan-50)
+    );
   border-bottom: var(--sp-border-width-base) solid var(--sp-surface-divider);
 }
 
@@ -509,7 +513,8 @@ sp-card [data-sp-card-native] > * + * {
 }
 
 .toggle:has(input:focus-visible) {
-  outline: var(--sp-focus-ring-width) var(--sp-focus-ring-style) var(--sp-color-focus-primary);
+  outline: var(--sp-focus-ring-width) var(--sp-focus-ring-style)
+    var(--sp-color-focus-primary);
   outline-offset: var(--sp-focus-ring-offset);
 }
 
@@ -583,7 +588,8 @@ sp-card [data-sp-card-native] > * + * {
 
 .pill-link:focus-visible,
 .brand:focus-visible {
-  outline: var(--sp-focus-ring-width) var(--sp-focus-ring-style) var(--sp-color-focus-primary);
+  outline: var(--sp-focus-ring-width) var(--sp-focus-ring-style)
+    var(--sp-color-focus-primary);
   outline-offset: var(--sp-focus-ring-offset);
 }
 
