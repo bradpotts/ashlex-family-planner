@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "deny": [
+      "Bash(git)",
+      "Bash(git *)",
+      "Bash(rm -rf*)",
+      "Bash(rm -fr*)",
+      "Bash(gh repo delete*)",
+      "Bash(gh repo archive*)",
+      "Bash(npm publish*)",
+      "Bash(npm unpublish*)"
+    ]
+  }
+}

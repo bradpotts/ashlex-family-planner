@@ -1,0 +1,141 @@
+{
+  "$schema": "./node_modules/@phcdevworks/spectre-manifest/schema/spectre.manifest.schema.json",
+  "$id": "urn:local:family-weekend:manifest",
+  "schemaVersion": "0.1",
+  "system": {
+    "name": "family-weekend",
+    "version": "0.0.1",
+    "manifestVersion": "0.1",
+    "summary": "Application manifest for this Spectre-scaffolded project.",
+    "packageManager": "npm"
+  },
+  "layers": {
+    "foundation": {
+      "title": "Foundation",
+      "description": "Published Spectre packages this app consumes as external dependencies.",
+      "order": 10,
+      "dependsOn": []
+    },
+    "app": {
+      "title": "Application",
+      "description": "This project.",
+      "order": 20,
+      "dependsOn": [
+        "foundation"
+      ]
+    }
+  },
+  "packages": {
+    "@phcdevworks/spectre-shell": {
+      "role": "spa-bootstrap",
+      "layer": "foundation",
+      "stability": "stable",
+      "description": "SPA bootstrap orchestration — bootstrapApp, lifecycle hooks, plugin system.",
+      "exports": [
+        "."
+      ]
+    },
+    "@phcdevworks/spectre-shell-router": {
+      "role": "router",
+      "layer": "foundation",
+      "stability": "stable",
+      "description": "Client-side routing — path matching, lazy loaders, guards.",
+      "exports": [
+        "."
+      ]
+    },
+    "@phcdevworks/spectre-shell-signals": {
+      "role": "reactive-primitives",
+      "layer": "foundation",
+      "stability": "stable",
+      "description": "Reactive primitives — signal, computed, effect, batch.",
+      "exports": [
+        "."
+      ]
+    },
+    "@phcdevworks/spectre-tokens": {
+      "role": "design-tokens",
+      "layer": "foundation",
+      "stability": "stable",
+      "description": "Design tokens as CSS variables and JS objects.",
+      "exports": [
+        "."
+      ]
+    },
+    "@phcdevworks/spectre-ui": {
+      "role": "styling",
+      "layer": "foundation",
+      "stability": "stable",
+      "description": "CSS bundles and type-safe recipe functions built on tokens.",
+      "exports": [
+        "."
+      ]
+    },
+    "@phcdevworks/spectre-components": {
+      "role": "web-components",
+      "layer": "foundation",
+      "stability": "stable",
+      "description": "Spectre custom elements (for example sp-button).",
+      "exports": [
+        "."
+      ]
+    },
+    "family-weekend": {
+      "role": "application",
+      "layer": "app",
+      "stability": "experimental",
+      "description": "Spectre shell app scaffolded by @phcdevworks/spectre-init.",
+      "exports": [
+        "."
+      ],
+      "dependencies": [
+        "@phcdevworks/spectre-shell",
+        "@phcdevworks/spectre-shell-router",
+        "@phcdevworks/spectre-shell-signals",
+        "@phcdevworks/spectre-tokens",
+        "@phcdevworks/spectre-ui",
+        "@phcdevworks/spectre-components"
+      ],
+      "allowedTargets": [
+        "layer:foundation"
+      ]
+    }
+  },
+  "rules": {
+    "dependencyDirection": [
+      {
+        "fromLayer": "foundation",
+        "allowedLayers": [
+          "foundation"
+        ]
+      },
+      {
+        "fromLayer": "app",
+        "allowedLayers": [
+          "app",
+          "foundation"
+        ]
+      }
+    ],
+    "forbiddenImports": [],
+    "boundaryConstraints": []
+  },
+  "ai": {
+    "preferredEntrypoints": [
+      {
+        "task": "run this app's dev server",
+        "kind": "command",
+        "entrypoint": "npm run dev"
+      }
+    ],
+    "generationRules": [
+      "Consume Spectre packages via their published APIs — do not reimplement router, signals, or design-token logic locally."
+    ],
+    "usageGuidance": [
+      "This manifest describes this app's own Spectre dependencies. It is a starting point, not a registration in the Spectre ecosystem manifest."
+    ],
+    "safeDefaults": [
+      "Keep this application's package entry dependencies list in sync with package.json's @phcdevworks/* dependencies."
+    ]
+  }
+}

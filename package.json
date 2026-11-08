@@ -1,0 +1,24 @@
+{
+  "name": "family-weekend",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "typecheck": "tsc --noEmit",
+    "check:ecosystem": "spectre-manifest-validate spectre.manifest.json && spectre-manifest-check spectre.manifest.json ."
+  },
+  "dependencies": {
+    "@phcdevworks/spectre-shell": "^1.8.0",
+    "@phcdevworks/spectre-shell-router": "^1.6.0",
+    "@phcdevworks/spectre-shell-signals": "^1.6.1",
+    "@phcdevworks/spectre-tokens": "^4.15.0",
+    "@phcdevworks/spectre-ui": "^5.8.0",
+    "@phcdevworks/spectre-components": "^1.25.0"
+  },
+  "devDependencies": {
+    "@phcdevworks/spectre-manifest": "^2.0.0",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.5"
+  }
+}
