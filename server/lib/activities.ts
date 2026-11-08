@@ -1,11 +1,9 @@
-import { cached } from './http.ts'
 import {
-  bbox,
   coords,
   distanceKm,
   formatAddress,
+  getPlaces,
   osmUrl,
-  overpass,
   safeWebsite,
   type OsmElement
 } from './overpass.ts'
@@ -137,26 +135,6 @@ function categorize(tags: Record<string, string>): Category | null {
   return null
 }
 
-function buildQuery(lat: number, lon: number, scale: number): string {
-  const r15 = Math.round(15000 * scale)
-  const r8 = Math.round(8000 * scale)
-  const r4 = Math.round(4000 * scale)
-  const at = (r: number) => bbox(lat, lon, r)
-  // Separate outputs so numerous parks can't crowd out the rarer, higher-value attractions.
-  return `[out:json][timeout:30];
-(
-  nwr["tourism"~"^(zoo|aquarium|theme_park)$"]["name"]${at(r15)};
-  nwr["amenity"="planetarium"]["name"]${at(r15)};
-  nwr["tourism"="museum"]["museum"~"children|science|natural_history|nature"]["name"]${at(r15)};
-  nwr["leisure"~"^(water_park|indoor_play)$"]["name"]${at(r15)};
-);
-out center tags 80;
-nwr["amenity"="library"]["name"]${at(r8)};
-out center tags 30;
-nwr["leisure"~"^(playground|park)$"]["name"]${at(r4)};
-out center tags 60;`
-}
-
 /** Max distance per category, matching the query radii, since bbox corners reach ~1.4× further. */
 function radiusKmFor(category: string, scale: number): number {
   if (category === 'library') return 8 * scale
@@ -286,9 +264,7 @@ export function rankCandidates(
   return out.sort((a, b) => b.score - a.score)
 }
 
-const TTL_MS = 6 * 60 * 60_000
-
-/** Raw OSM results are cached; ranking is redone per request so it reflects the current weather. */
+/** Raw OSM results are cached (shared with the restaurant route); ranking is redone per request so it reflects the current weather. */
 export async function getActivityElements(
   lat: number,
   lon: number
@@ -297,13 +273,6 @@ export async function getActivityElements(
   retrievedAt: string
   radiusScale: number
 }> {
-  const key = `activities:${lat.toFixed(3)},${lon.toFixed(3)}`
-  const res = await cached(key, TTL_MS, async () => {
-    const first = await overpass(buildQuery(lat, lon, 1))
-    const usable = first.filter((e) => e.tags?.name && categorize(e.tags))
-    if (usable.length >= 2) return { elements: first, radiusScale: 1 }
-    const second = await overpass(buildQuery(lat, lon, 2))
-    return { elements: second, radiusScale: 2 }
-  })
-  return { ...res.data, retrievedAt: res.retrievedAt }
+  const { elements, retrievedAt } = await getPlaces(lat, lon)
+  return { elements, retrievedAt, radiusScale: 1 }
 }

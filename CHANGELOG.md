@@ -1,8 +1,8 @@
 # Changelog
 
 Minute-by-minute record of the Family Weekend Planner assessment, in 10-minute
-blocks. Assessment window: **14:00–16:00 (PST), 8 Nov 2026**. Entries so far run
-14:00–14:55.
+blocks. Assessment window: **14:00–16:00 (local time), 8 Nov 2026**. Entries so
+far run 14:00–14:55.
 
 Times come from file modification times, screenshot timestamps, and API response
 timestamps recorded during the session. Times marked `~` are estimated to within
@@ -87,9 +87,18 @@ Node on localhost; systemd; a `?simulateFail=` demo hook.
 | ~14:53 | Claude | Cleanup audit: removed unused `flagEmoji()` and `peekCache()`, the scaffold `#nav-status` leftover, and the scaffold manifest wording; added `check:ecosystem` to `npm run check`. No secrets or IPs found. Full check ✅ (format, lint, typecheck, 10/10 tests, build, manifest) |
 | ~14:54 | Claude | This changelog (`CHANGELOG.md`)                                                                                                                                                                                                                                                   |
 
-## Remaining (from 14:55)
+## 14:55–15:20 — Deploy, speed fix, documentation
 
-- [ ] Deploy to the Linode (steps in `README.md`)
-- [ ] On-server verification: URL, ports, survives logout and reboot
-- [ ] Add the developer's own decisions and corrections to `AI-USAGE.md`
+| Time         | Who    | Work                                                                                                                                                                                                            |
+| ------------ | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ~14:57       | Claude | Wrote `deploy/setup-server.sh`, a one-shot idempotent server setup (firewall allows SSH first, Node 24, nginx, `app` user, systemd, sudoers for restart only)                                                   |
+| ~15:00       | Dev    | Deployed to the Linode (git clone as `app`, `npm ci`, build, systemd, nginx). Live URL supplied separately with the submission                                                                                  |
+| ~15:02       | Dev    | Reported slow API calls and a Toronto activities timeout                                                                                                                                                        |
+| ~15:03–15:10 | Claude | Speed fix: one combined Overpass query per city shared by both routes (in-flight de-duplication), no second-radius round trips, backups after 2s, 55s timeout, auto-retry removed, honest "up to a minute" hint |
+| ~15:10       | Claude | Toronto verified: one call, ~30s first search, 0s repeat. Full check ✅                                                                                                                                         |
+| ~15:12       | Dev    | Redeployed (`git pull`, `npm ci`, build, restart)                                                                                                                                                               |
+| ~15:15–15:20 | Claude | Docs: live URL and real git-based install in README, limitations (Overpass, in-memory cache), live server checks in VERIFICATION, developer decisions in AI-USAGE. Live site checked externally                 |
+
+## Remaining (from 15:20)
+
 - [ ] Final commit and submission

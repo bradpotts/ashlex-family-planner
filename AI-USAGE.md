@@ -21,9 +21,11 @@
 
 ## Corrections and decisions made by the developer
 
-- **Data sources**: chose keyless Open-Meteo and OpenStreetMap over Google
-  Places, so there are no cost, no secrets, and every place has a verifiable
-  public link.
+- **Keyless sources over Google Places**: chose Open-Meteo and OpenStreetMap
+  rather than Google Places. There's no cost or billing risk (the brief forbids
+  unagreed charges), no API key to protect, and every place links to a public
+  OpenStreetMap page that anyone can check. Accepted trade-off: OSM coverage and
+  freshness vary, and Overpass is slow.
 - **Stack**: kept the developer's own Spectre design system for a consistent
   look, rather than an AI-suggested generic UI kit.
 - Set the honesty rules up front in `AGENTS.md`, `CLAUDE.md`, and `SPEC.md`: no
@@ -31,8 +33,22 @@
   verify" states.
 - Specified a `?simulateFail=` hook so failure states can be demonstrated on
   demand.
-- _(Add your own here: anything you changed, rejected, or decided after
-  reviewing the AI output.)_
+- **Overpass 406 diagnosed as a missing User-Agent**: Overpass rejected requests
+  with `406 Not Acceptable`. I traced this to the missing `User-Agent` header
+  and required every server-side call to send
+  `FamilyWeekendPlanner/1.0 (assessment demo)`. That's a generic app identity,
+  with no personal email.
+- **Italian only, not pizza**: the restaurant search matches `cuisine~italian`
+  only. I deliberately excluded pizza-only places, because the brief asks for an
+  Italian restaurant and a takeaway pizza shop isn't the same recommendation.
+  Places tagged `italian;pizza` still qualify.
+- **No CI deploy**: CI runs the full check on push, but deployment stays a
+  manual `git pull`, `npm ci`, build, and restart on the server. Setting up
+  deploy keys and secrets in CI wasn't worth the time in a two-hour build, and
+  keeping server access out of GitHub is safer.
+- **Skipped the date picker**: the brief defines exactly which weekend to show
+  (the next Saturday on or after the city's local date), so I didn't add a
+  picker. It would have added scope and new edge cases for no requirement.
 
 ## Issues the AI hit, and how they were resolved
 

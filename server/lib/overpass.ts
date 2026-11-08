@@ -1,4 +1,4 @@
-import { fetchJson, SourceError } from './http.ts'
+import { cached, fetchJson, SourceError } from './http.ts'
 
 const MIRRORS = [
   'https://overpass-api.de/api/interpreter',
@@ -38,7 +38,7 @@ async function queryMirror(
   return json.elements
 }
 
-const HEDGE_DELAY_MS = 4_000
+const HEDGE_DELAY_MS = 2_000
 
 /**
  * Hedged requests across public mirrors: the primary starts immediately and
@@ -48,7 +48,7 @@ const HEDGE_DELAY_MS = 4_000
  */
 export function overpass(
   query: string,
-  timeoutMs = 30_000
+  timeoutMs = 55_000
 ): Promise<OsmElement[]> {
   return new Promise((resolve, reject) => {
     let settled = false
@@ -154,4 +154,37 @@ export function safeWebsite(tags: Record<string, string>): string | null {
   } catch {
     return null
   }
+}
+
+const PLACES_TTL_MS = 6 * 60 * 60_000
+
+/**
+ * One Overpass query per city for everything the app needs (activities and
+ * Italian restaurants), at the widest radius used, then filtered in Node.
+ * Activities and restaurant requests arrive in parallel; the cache's in-flight
+ * de-duplication turns them into a single upstream call. Separate `out`
+ * statements keep numerous parks from crowding out rarer attractions.
+ */
+export async function getPlaces(
+  lat: number,
+  lon: number
+): Promise<{ elements: OsmElement[]; retrievedAt: string }> {
+  const at = (r: number) => bbox(lat, lon, r)
+  const query = `[out:json][timeout:50];
+(
+  nwr["tourism"~"^(zoo|aquarium|theme_park)$"]["name"]${at(15000)};
+  nwr["amenity"="planetarium"]["name"]${at(15000)};
+  nwr["tourism"="museum"]["museum"~"children|science|natural_history|nature"]["name"]${at(15000)};
+  nwr["leisure"~"^(water_park|indoor_play)$"]["name"]${at(15000)};
+);
+out center tags 80;
+nwr["amenity"="restaurant"]["cuisine"~"italian",i]["name"]${at(15000)};
+out center tags 100;
+nwr["amenity"="library"]["name"]${at(8000)};
+out center tags 30;
+nwr["leisure"~"^(playground|park)$"]["name"]${at(4000)};
+out center tags 60;`
+  const key = `places:${lat.toFixed(3)},${lon.toFixed(3)}`
+  const res = await cached(key, PLACES_TTL_MS, () => overpass(query))
+  return { elements: res.data, retrievedAt: res.retrievedAt }
 }

@@ -30,9 +30,20 @@ Re-run the deployment checks on the Linode after install.
 - The empty-state panel stayed visible after selecting a city (CSS `display`
   overrode `hidden`). Fix: `.empty[hidden]`.
 
-## To re-check on the server
+## Live server checks (URL supplied separately)
 
-- [ ] `http://<server-ip>/` loads; Portland and Paris both work
-- [ ] `ss -tlnp` shows Node on 127.0.0.1:3000 only; `ufw status` shows 22 and 80
-- [ ] Log out of SSH, then the app still responds; `reboot`, then it comes back
-- [ ] `curl -I http://<server-ip>/` shows no `X-Powered-By` and no nginx version
+Run on 8 Nov 2026 at about 07:18 UTC. "Automated" means scripted `curl`/TCP
+checks run from an external machine. "Manual" means checked by the developer on
+the server or in a browser.
+
+| #   | Check                                    | How                                                                     | Result                                                                                                                                                                                                                 |
+| --- | ---------------------------------------- | ----------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| L1  | Deployed site loads in a browser         | Manual (browser) and automated                                          | ✅ `GET /` → HTTP 200 in 0.4s; search, weather, activities, and restaurant render                                                                                                                                      |
+| L2  | Portland OR vs Portland ME weekends      | Automated (`/api/weekend`)                                              | ✅ Same instant, different weekends: **Portland, OR** local Sat 7 Nov 23:18 → weekend **Sat 7 – Sun 8 Nov**; **Portland, ME** local Sun 8 Nov 02:18 → weekend **Sat 14 – Sun 15 Nov** (Sunday rule: following weekend) |
+| L3  | `simulateFail` failure state             | Automated and manual (browser)                                          | ✅ `/api/restaurant?simulateFail=overpass` → HTTP 503 JSON error; in the browser, `?simulateFail=overpass` shows the error alerts with "Try again" while the weather still loads                                       |
+| L4  | Bad input rejected                       | Automated                                                               | ✅ `tz=Not/AZone` → HTTP 400 JSON error                                                                                                                                                                                |
+| L5  | Only 22 and 80 exposed (`ss`, firewall)  | Manual (`ss -tlnp`, `ufw status`) and automated (external TCP)          | ✅ `ss -tlnp`: sshd on :22, nginx on :80, node on **127.0.0.1:3000** only. External TCP probe: 22 open, 80 open, 3000 closed, 443 closed                                                                               |
+| L6  | App runs as `app`, not root              | Manual (`ps -o user= -C node`, `systemctl show -p User family-weekend`) | ✅ Node process owned by `app`; systemd unit `User=app`                                                                                                                                                                |
+| L7  | Still works after SSH logout             | Manual                                                                  | ✅ Logged out of SSH, then reloaded the site: still serving (systemd service, `Restart=always`)                                                                                                                        |
+| L8  | Headers hardened                         | Automated (`curl -I`)                                                   | ✅ CSP, `X-Content-Type-Options: nosniff`, `X-Frame-Options: DENY` present; no `X-Powered-By`; `Server: nginx` without a version                                                                                       |
+| L9  | Large city (Toronto) after the speed fix | Automated (local production build)                                      | ✅ Activities and restaurant both returned after one shared Overpass call (~30s first search, 0s repeat): Riverdale Farm, Ripley's Aquarium of Canada, High Park Zoo; Grazie Ristorante 1.7 km                         |

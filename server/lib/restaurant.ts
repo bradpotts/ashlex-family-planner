@@ -1,11 +1,9 @@
-import { cached } from './http.ts'
 import {
-  bbox,
   coords,
   distanceKm,
   formatAddress,
+  getPlaces,
   osmUrl,
-  overpass,
   safeWebsite,
   type OsmElement
 } from './overpass.ts'
@@ -24,12 +22,6 @@ export interface Restaurant {
   familyFeatures: string[]
   explanation: string
   osmUrl: string
-}
-
-function query(lat: number, lon: number, radius: number): string {
-  return `[out:json][timeout:30];
-nwr["amenity"="restaurant"]["cuisine"~"italian",i]["name"]${bbox(lat, lon, radius)};
-out center tags 100;`
 }
 
 function familyFeatures(tags: Record<string, string>): string[] {
@@ -70,6 +62,9 @@ export function pickRestaurant(
     const tags = el.tags ?? {}
     const pos = coords(el)
     if (!tags.name || !pos) continue
+    // The shared places query also returns activities; keep Italian restaurants only.
+    if (tags.amenity !== 'restaurant' || !/italian/i.test(tags.cuisine ?? ''))
+      continue
     // Skip places mapped as closed; we can't verify they still trade.
     if (
       tags['disused:amenity'] ||
@@ -121,8 +116,6 @@ export function pickRestaurant(
   }
 }
 
-const TTL_MS = 6 * 60 * 60_000
-
 export async function getRestaurant(
   lat: number,
   lon: number
@@ -131,18 +124,12 @@ export async function getRestaurant(
   searchedKm: number
   retrievedAt: string
 }> {
-  const key = `restaurant:${lat.toFixed(3)},${lon.toFixed(3)}`
+  const { elements, retrievedAt } = await getPlaces(lat, lon)
   const center = { lat, lon }
-  const res = await cached(key, TTL_MS, async () => {
-    for (const radius of [5000, 15000]) {
-      const pick = pickRestaurant(
-        await overpass(query(lat, lon, radius)),
-        center,
-        radius / 1000
-      )
-      if (pick) return { restaurant: pick, searchedKm: radius / 1000 }
-    }
-    return { restaurant: null, searchedKm: 15 }
-  })
-  return { ...res.data, retrievedAt: res.retrievedAt }
+  // Prefer something close; widen only if nothing qualifies (no extra network call).
+  for (const km of [5, 15]) {
+    const pick = pickRestaurant(elements, center, km)
+    if (pick) return { restaurant: pick, searchedKm: km, retrievedAt }
+  }
+  return { restaurant: null, searchedKm: 15, retrievedAt }
 }

@@ -5,6 +5,11 @@ for children aged 4–8 (weather-aware), and one Italian restaurant. Everything
 comes from live, linked, timestamped public sources, and the app says so plainly
 when something can't be verified.
 
+**Live:** URL supplied separately with the assessment submission.
+
+Try `Portland` (shared name), `Toronto`, or add `?simulateFail=overpass` to see
+the failure states.
+
 **Stack:** TypeScript · Vite SPA (Spectre shell, components, and tokens) · Node
 24 + Express 5 API (run directly from TypeScript via Node's type stripping) ·
 nginx · systemd · Ubuntu.
@@ -70,9 +75,10 @@ ufw allow OpenSSH && ufw allow 80/tcp && ufw --force enable
 curl -fsSL https://deb.nodesource.com/setup_24.x | bash -
 apt-get install -y nodejs nginx
 
-# 3. Unprivileged service user + app directory
+# 3. Unprivileged service user; the app user owns the checkout and builds it
 useradd --system --create-home --shell /usr/sbin/nologin app
-mkdir -p /opt/family-weekend && cp -r . /opt/family-weekend && chown -R app:app /opt/family-weekend
+mkdir -p /opt/family-weekend && chown app:app /opt/family-weekend
+sudo -u app git clone <repo-url> /opt/family-weekend
 cd /opt/family-weekend && sudo -u app npm ci && sudo -u app npm run build
 
 # 4. systemd service
@@ -96,8 +102,19 @@ systemctl restart family-weekend
 journalctl -u family-weekend -f
 ```
 
-To redeploy after code changes, run `./deploy.sh` as `app` (`npm ci`, build,
-restart, health check).
+### Redeploy after code changes
+
+```bash
+cd /opt/family-weekend
+sudo -u app git pull
+sudo -u app npm ci
+sudo -u app npm run build
+systemctl restart family-weekend
+```
+
+`./deploy.sh` wraps the same steps (plus a health check) for the `app` user.
+`deploy/setup-server.sh` is an alternative one-shot setup that copies files with
+rsync instead of git.
 
 ### Why it survives logout
 
@@ -124,9 +141,13 @@ logout and starts again on reboot.
   trade-off: OSM coverage and freshness vary by city.
 - **Server-side proxy** keeps third-party logic, caching, and failure handling
   in one place, and leaves nothing sensitive in the browser.
-- **Hedged Overpass requests** (the primary starts at once; backups start 4s
+- **One Overpass query per city**, shared by the activities and restaurant
+  routes, with **hedged mirrors** (the primary starts at once; backups start 2s
   apart; first success wins), because public Overpass latency swung between 1s
-  and 25s+ during development.
+  and 35s during development.
+- **Deploy by `git pull` on the server, not CI/CD**: a time and security
+  trade-off for a two-hour build, with no deploy keys or server credentials
+  stored in GitHub.
 - **Weather-aware ranking** reuses the cached forecast. If weather fails,
   activities are still ranked, and the UI says so.
 - **Suitability text is per category**, not invented per place. The UI states
@@ -134,15 +155,23 @@ logout and starts again on reboot.
 
 ## Known limitations / unfinished
 
-- **Overpass latency**: public servers were slow (15–25s) during the build. The
-  app shows a "can take up to 30 seconds" hint, retries once automatically, then
-  shows an honest error with "Try again". With more time: a request queue, or
-  self-hosting an Overpass extract.
+- **Overpass is slow**: the public Overpass servers took 15–35s per query during
+  the build, so the first search for a city can take up to a minute.
+  Mitigations: one combined query per city shared by both routes, hedged
+  mirrors, a 55s timeout, and a "first search can take up to a minute" hint.
+  Failures show an honest error with "Try again". With more time: self-host an
+  Overpass extract, or pre-warm popular cities.
+- **In-memory cache only**: results are cached per process (weather 30 min,
+  places 6 h, geocoding 24 h), so repeat searches are instant. The cache is lost
+  on restart and isn't shared between processes; Redis or SQLite would fix both.
+- **No date picker**: the app always plans the next target weekend, as the brief
+  specifies. Choosing other weekends was deliberately skipped.
+- **No CI deploy**: CI runs the checks, but deploys are a manual `git pull` on
+  the server.
 - OSM data quality varies. Opening hours are shown as "per OpenStreetMap, may be
   outdated", and age suitability is inferred from the category.
 - Temperatures are shown in °C only (no unit toggle).
 - No end-to-end test suite; the UI was verified manually with a headless browser
   (see `VERIFICATION.md`).
-- The in-memory cache is per process and resets on restart.
 - HTTPS is not configured (no hostname was supplied). With a domain, add
   certbot.

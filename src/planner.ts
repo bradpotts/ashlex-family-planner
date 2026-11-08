@@ -35,34 +35,13 @@ const errorMessage = (err: unknown) =>
 
 let controller: AbortController | null = null
 
-/**
- * Upstream timeouts (Overpass is often slow) get one automatic retry before
- * the error is shown. Simulated outages and bad input fail straight away.
- */
-async function withRetry<T>(
-  fetcher: (signal: AbortSignal) => Promise<T>,
-  signal: AbortSignal
-): Promise<T> {
-  try {
-    return await fetcher(signal)
-  } catch (err) {
-    const transient =
-      err instanceof ApiError &&
-      err.source === 'overpass' &&
-      !/simulated/i.test(err.message)
-    if (!transient || signal.aborted) throw err
-    await new Promise((r) => setTimeout(r, 1500))
-    return fetcher(signal)
-  }
-}
-
 function load<T>(
   target: { value: Section<T> },
   fetcher: (signal: AbortSignal) => Promise<T>,
   signal: AbortSignal
 ) {
   target.value = { status: 'loading' }
-  withRetry(fetcher, signal).then(
+  fetcher(signal).then(
     (data) => {
       if (!signal.aborted) target.value = { status: 'ok', data }
     },
@@ -225,7 +204,7 @@ function renderActivities(): string {
       head +
       skeletonCards(
         2,
-        'Searching OpenStreetMap for family-friendly places. This can take up to 30 seconds.'
+        'Searching OpenStreetMap for family-friendly places. The public map servers are busy, so the first search for a city can take up to a minute; repeat searches are instant.'
       )
     )
   if (s.status === 'error') return head + errorState('activities', s.message)
@@ -288,7 +267,13 @@ function renderRestaurant(): string {
   )
   if (s.status === 'idle') return ''
   if (s.status === 'loading')
-    return head + skeletonCards(1, 'Looking up Italian restaurants nearby…')
+    return (
+      head +
+      skeletonCards(
+        1,
+        'Looking up Italian restaurants nearby (shares the same map search, up to a minute)…'
+      )
+    )
   if (s.status === 'error') return head + errorState('restaurant', s.message)
   const d = s.data
   const r = d.restaurant

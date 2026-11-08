@@ -14,9 +14,9 @@
 ## P1 — Deploy
 
 - [x] `deploy/family-weekend.service`, `deploy/nginx.conf`, `deploy.sh`
-- [ ] Server: `app` user, Node 24, nginx, ufw (OpenSSH first, then 80). Steps in
+- [x] Server: `app` user, Node 24, nginx, ufw (OpenSSH first, then 80). Steps in
       README
-- [ ] Verify the app survives SSH logout and a reboot
+- [x] Verify the app survives SSH logout and a reboot
 
 ## P2 — Polish
 
@@ -28,5 +28,5 @@
 ## P3 — Handoff
 
 - [x] `README.md`, `VERIFICATION.md`, `AI-USAGE.md` (drafts)
-- [ ] Re-run the verification checklist on the server and record the server URL
-- [ ] Add your own corrections and decisions to `AI-USAGE.md`
+- [x] Re-run the verification checklist on the server and record the server URL
+- [x] Add your own corrections and decisions to `AI-USAGE.md`
