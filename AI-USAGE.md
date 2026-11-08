@@ -39,10 +39,12 @@
 - **No date picker**: the brief fixes which weekend to plan (the next Saturday
   on or after the city's local date), so a picker would add scope and edge cases
   for no requirement.
-- **Diagnosed slow Overpass on the server as IPv6 and forced IPv4**: on the
-  Linode, Overpass took 31.8s while geocoding took 0.49s. I traced the delay to
-  the server's IPv6 route stalling and set
-  `dns.setDefaultResultOrder('ipv4first')`.
+- **Suspected IPv6 for slow Overpass and set ipv4first**: on the Linode,
+  Overpass took 31.8s while geocoding took 0.49s. I suspected a stalled IPv6
+  route and set `dns.setDefaultResultOrder('ipv4first')`, but latency stayed
+  high afterwards. The likely cause is load on the public Overpass servers, not
+  the server's network. Mitigations are caching (6 h per city) and warming the
+  demo cities before presenting.
 - **Rejected port 443 instead of dropping it**: Chrome's HTTPS-first mode tried
   `https://` and hung until timeout because ufw silently dropped 443. Rejecting
   it makes the refusal immediate, so Chrome falls back to HTTP at once. TLS

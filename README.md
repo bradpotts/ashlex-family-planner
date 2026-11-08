@@ -147,8 +147,9 @@ logout and starts again on reboot.
   routes, with **hedged mirrors** (the primary starts at once; backups start 2s
   apart; first success wins), because public Overpass latency swung between 1s
   and 35s during development.
-- **IPv4 first for outbound calls**: the server's IPv6 route to Overpass stalled
-  (~31s per query), while IPv4 is fast, so the Node DNS order is `ipv4first`.
+- **IPv4 first for outbound calls**: an Overpass query from the server took
+  ~31s. Preferring IPv4 was a suspected fix for a stalled IPv6 route, but public
+  Overpass latency stayed high after the change.
 - **Deploy by `git pull` on the server, not CI/CD**: a time and security
   trade-off for a two-hour build, with no deploy keys or server credentials
   stored in GitHub.
