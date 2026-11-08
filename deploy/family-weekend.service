@@ -1,0 +1,34 @@
+[Unit]
+Description=Family Weekend Planner (Node API + static SPA)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=app
+Group=app
+WorkingDirectory=/opt/family-weekend
+Environment=NODE_ENV=production
+Environment=HOST=127.0.0.1
+Environment=PORT=3000
+EnvironmentFile=-/opt/family-weekend/.env
+ExecStart=/usr/bin/node server/index.ts
+Restart=always
+RestartSec=3
+
+# Hardening: the app only needs to read its own files and make outbound HTTPS calls.
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+CapabilityBoundingSet=
+
+[Install]
+WantedBy=multi-user.target
